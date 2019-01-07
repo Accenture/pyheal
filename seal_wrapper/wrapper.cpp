@@ -747,9 +747,11 @@ PYBIND11_MODULE(seal_wrapper, m) {
             .def("rescale_to", (void (Evaluator::*)(const Ciphertext &,
                                                     parms_id_type, Ciphertext &,
                                                     MemoryPoolHandle)) &Evaluator::rescale_to,
+                 py::arg("encrypted"), py::arg("parms_id"), py::arg("destination"), py::arg("pool") = GetPool(),
                  "Switch down modulus and rescale message accordingly")
             .def("rescale_to", (void (Evaluator::*)(Ciphertext &, parms_id_type,
                                                     MemoryPoolHandle)) &Evaluator::rescale_to_inplace,
+                 py::arg("encrypted"), py::arg("parms_id"), py::arg("pool") = GetPool(),
                  "Switch down modulus and rescale message accordingly");
 
     // GaloisKeys
