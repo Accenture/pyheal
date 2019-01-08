@@ -427,6 +427,79 @@ class TestCKKS(unittest.TestCase):
         # Encryption parameters for all terms are currently different.
         # Example proceeds to modify scale directly - ending here.
 
+    def test_ckks_multiply_4(self):
+        # Create random number generator with fixed seed
+        rngf = heal.FastPRNGFactory(1, 1)
+
+        # Configure encryption parameters
+        parms = heal.EncryptionParameters("CKKS")
+        parms.set_random_generator(rngf)
+        parms.set_poly_modulus(8192)
+        parms.set_coeff_modulus(heal.coeff_modulus_128(8192))
+        assert parms.coeff_modulus()[0].bit_count() == 55
+
+        # Create context
+        context = heal.Context(parms).context
+        assert context.parameters_set()
+
+        # Create keys
+        keygen = heal.KeyGenerator(context)
+        public = keygen.public_key()
+        secret = keygen.secret_key()
+        relin = keygen.relin_keys(60)
+
+        encryptor = heal.Encryptor(context, public)
+        evaluator = heal.Evaluator(context)
+        decryptor = heal.Decryptor(context, secret)
+
+        # Encode using CKKS
+        encoder = heal.CKKSEncoder(context)
+        assert encoder.slot_count() == 4096
+        input = heal.VectorDouble()
+        input_2 = heal.VectorDouble()
+        input_3 = heal.VectorDouble()
+        input_4 = heal.VectorDouble()
+        input.append(1.0)
+        input_2.append(1.0)
+        input_3.append(1.0)
+        input_4.append(1.0)
+        scale = 2 ** 50
+        plain = encoder.encode(input, scale=scale)
+
+        encrypted_1 = encryptor.encrypt(plain)
+        encrypted_2 = encryptor.encrypt(plain)
+        encrypted_3 = encryptor.encrypt(plain)
+        encrypted_4 = encryptor.encrypt(plain)
+
+        result1 = evaluator.multiply(encrypted_1, encrypted_2)
+        result1 = evaluator.relinearize(result1, relin)
+        result1 = evaluator.rescale_to_next(result1)
+
+        test = decryptor.decrypt(result1)
+        test = encoder.decode(test)
+        assert math.isclose(test[0], 0.9999999892349483)
+
+        # encrypted_3 = evaluator.rescale_to_next(encrypted_3) # Results in wrong answer in next assert
+        encrypted_3 = evaluator.mod_switch_to(encrypted_3, result1.parms_id())
+
+        result2 = evaluator.multiply(result1, encrypted_3)
+        result2 = evaluator.relinearize(result2, relin)
+        result2 = evaluator.rescale_to_next(result2)
+
+        test = decryptor.decrypt(result2)
+        test = encoder.decode(test)
+        assert math.isclose(test[0], 0.9999998352594391)
+
+        encrypted_4 = evaluator.mod_switch_to(encrypted_4, result2.parms_id())
+
+        result3 = evaluator.multiply(result2, encrypted_4)
+        result3 = evaluator.relinearize(result3, relin)
+        result3 = evaluator.rescale_to_next(result3)
+
+        test = decryptor.decrypt(result3)
+        test = encoder.decode(test)
+        assert math.isclose(test[0], 0.9999982023297731)
+
 
 if __name__ == '__main__':
     unittest.main()
