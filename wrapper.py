@@ -119,7 +119,7 @@ class BatchEncoder:
 
 
 class Ciphertext(seal.Ciphertext):
-    def __init__(self, ctx=None, parms_id=None, size_capacity=None, pool=None):
+    def __init__(self, ciphertext=None, ctx=None, parms_id=None, size_capacity=None, pool=None):
         """
         Creates a Ciphertext container allocating no memory
         :param pool: Memory pool handle (Default: default memory handle)
@@ -127,6 +127,10 @@ class Ciphertext(seal.Ciphertext):
         """
         if pool is None:
             pool = MemoryPoolHandle().GetPool()
+
+        if isinstance(ciphertext, seal.Ciphertext):
+            super().__init__(ciphertext)
+            return
 
         if ctx is not None and parms_id is not None and size_capacity is not None:
             super().__init__(ctx, parms_id, size_capacity, pool)
