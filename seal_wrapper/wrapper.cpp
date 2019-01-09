@@ -42,6 +42,10 @@ static inline std::size_t ChainIndex(std::shared_ptr<SEALContext> context, parms
     return context->context_data(parms_id)->chain_index();
 }
 
+static inline void set_scale(Ciphertext &encrypted, double scale) {
+    encrypted.scale() = scale;
+}
+
 PYBIND11_MAKE_OPAQUE(std::vector<int>);
 PYBIND11_MAKE_OPAQUE(std::vector<uint64_t>);
 PYBIND11_MAKE_OPAQUE(std::vector<int64_t>);
@@ -757,7 +761,8 @@ PYBIND11_MODULE(seal_wrapper, m) {
                                                     MemoryPoolHandle)) &Evaluator::rescale_to_inplace,
                  py::arg("encrypted"), py::arg("parms_id"), py::arg("pool") = GetPool(),
                  "Switch down modulus and rescale message accordingly")
-            .def_static("chain_index", &ChainIndex);
+            .def_static("set_scale", &set_scale, py::arg("encrypted"), py::arg("scale"))
+            .def_static("chain_index", &ChainIndex, py::arg("context"), py::arg("parms_id"));
 
     // GaloisKeys
     py::class_<GaloisKeys>(m, "GaloisKeys")

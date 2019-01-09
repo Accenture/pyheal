@@ -996,6 +996,15 @@ class Evaluator:
         self.inner.rescale_to(current, parms_id, destination, pool)
         return destination
 
+    def set_scale(self, current, scale):
+        """
+        Force a scale on a particular Ciphertext
+        :param current: encrypted value
+        :param scale: new scale value
+        :return:
+        """
+        self.inner.set_scale(current, scale)
+
     def chain_index(self, context, parms_id):
         """
         Return the current chain index from a given parms_id

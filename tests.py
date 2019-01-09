@@ -438,7 +438,6 @@ class TestCKKS(unittest.TestCase):
         parms.set_coeff_modulus([heal.small_mods_40bit(0), heal.small_mods_40bit(1),
                                  heal.small_mods_40bit(2), heal.small_mods_40bit(3)])
         assert parms.coeff_modulus()[0].bit_count() <= 55
-        print(parms.parms_id())
 
         # Create context
         context = heal.Context(parms).context
@@ -467,8 +466,6 @@ class TestCKKS(unittest.TestCase):
         test = decryptor.decrypt(encrypted_1)
         test = encoder.decode(test)
         assert math.isclose(test[0], 2, rel_tol=0.00001)
-        print("")
-        print("encrypted_1 scale: " + str(encrypted_1.scale()))
 
         # 2 * 2
         result1 = evaluator.multiply(encrypted_1, encrypted_2, inplace=True)
@@ -476,30 +473,29 @@ class TestCKKS(unittest.TestCase):
         test = decryptor.decrypt(result1)
         test = encoder.decode(test)
         assert math.isclose(test[0], 4, rel_tol=0.00001)
-        print("test1: " + str(test))
-        print("result1 scale: " + str(result1.scale()))
         # Prevent scale from growing excessively
         while result1.scale() > 1e15:
             result1 = evaluator.rescale_to_next(result1)
-        print("result1 re-scaled to: " + str(result1.scale()))
 
         result2 = evaluator.multiply(encrypted_3, encrypted_4, inplace=True)
         result2 = evaluator.relinearize(result2, relin)
         test = decryptor.decrypt(result2)
         test = encoder.decode(test)
         assert math.isclose(test[0], 4, rel_tol=0.00001)
-        print("test2: " + str(test))
-        print("result2 scale: " + str(result2.scale()))
         # Prevent scale from growing excessively
         while result2.scale() > 1e15:
             result2 = evaluator.rescale_to_next(result2)
-        print("result2 re-scaled to: " + str(result2.scale()))
 
         result3 = evaluator.multiply(result2, result1, inplace=True)
         test = decryptor.decrypt(result3)
         test = encoder.decode(test)
         assert math.isclose(test[0], 16, rel_tol=1)  # approx 15.226805
-        print("result3 scale: " + str(result3.scale()))
+
+        # Test manual rescale
+        evaluator.set_scale(result3, test[0]/16 * result3.scale())
+        test = decryptor.decrypt(result3)
+        test = encoder.decode(test)
+        assert math.isclose(test[0], 16)
 
 
 if __name__ == '__main__':
