@@ -996,6 +996,13 @@ class Evaluator:
         self.inner.rescale_to(current, parms_id, destination, pool)
         return destination
 
+    def chain_index(self, context, parms_id):
+        """
+        Return the current chain index from a given parms_id
+        :param parms_id: A given parameter ID chain.
+        """
+        return self.inner.chain_index(context, parms_id)
+
 
 class GaloisKeys(seal.GaloisKeys):
     def __init__(self, keys=None):
