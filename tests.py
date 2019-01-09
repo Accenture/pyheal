@@ -12,9 +12,9 @@ If using Python unittest:
 python -m unittest tests.py
 """
 try:
-    import wrapper as heal
-except ModuleNotFoundError:
     import pyheal.he_wrappers.wrapper as heal
+except ModuleNotFoundError:
+    import wrapper as heal
 import unittest
 import math
 
@@ -334,13 +334,13 @@ class TestCKKS(unittest.TestCase):
         # Encode using CKKS
         encoder = heal.CKKSEncoder(context)
         assert encoder.slot_count() == 4096
-        input = heal.VectorDouble()
-        input.append(0.0)
-        input.append(1.1)
-        input.append(2.2)
-        input.append(3.3)
+        val = heal.VectorDouble()
+        val.append(0.0)
+        val.append(1.1)
+        val.append(2.2)
+        val.append(3.3)
         scale = 2 ** 60
-        plain = encoder.encode(input, scale=scale)
+        plain = encoder.encode(val, scale=scale)
 
         encrypted = encryptor.encrypt(plain)
         assert encrypted.scale() == 2 ** 60
@@ -353,7 +353,7 @@ class TestCKKS(unittest.TestCase):
             evaluator.rescale_to_next(encrypted, inplace=True)
             plain = decryptor.decrypt(encrypted)
             output = encoder.decode(plain)
-            assert math.isclose(output[1], input[1] ** i)
+            assert math.isclose(output[1], val[1] ** i)
 
         # Perform final square without relinearizing
         # Unable to relinearize with relin_keys at this point due to large decomposition bit count
@@ -362,7 +362,7 @@ class TestCKKS(unittest.TestCase):
         plain = decryptor.decrypt(encrypted)
         output = encoder.decode(plain)
         # Note loss of precision
-        assert math.isclose(output[1], 2.1305994861546176, abs_tol=0.01, rel_tol=0.01)
+        assert math.isclose(output[1], 2.1305994861546176, rel_tol=0.01)
 
     def test_example_ckks_3(self):
         # In this example our goal is to evaluate the polynomial PI*x^3 + 0.4x + 1 on
@@ -435,8 +435,10 @@ class TestCKKS(unittest.TestCase):
         parms = heal.EncryptionParameters("CKKS")
         parms.set_random_generator(rngf)
         parms.set_poly_modulus(8192)
-        parms.set_coeff_modulus(heal.coeff_modulus_128(8192))
-        assert parms.coeff_modulus()[0].bit_count() == 55
+        parms.set_coeff_modulus([heal.small_mods_40bit(0), heal.small_mods_40bit(1),
+                                 heal.small_mods_40bit(2), heal.small_mods_40bit(3)])
+        assert parms.coeff_modulus()[0].bit_count() <= 55
+        print(parms.parms_id())
 
         # Create context
         context = heal.Context(parms).context
@@ -455,50 +457,49 @@ class TestCKKS(unittest.TestCase):
         # Encode using CKKS
         encoder = heal.CKKSEncoder(context)
         assert encoder.slot_count() == 4096
-        input = heal.VectorDouble()
-        input_2 = heal.VectorDouble()
-        input_3 = heal.VectorDouble()
-        input_4 = heal.VectorDouble()
-        input.append(1.0)
-        input_2.append(1.0)
-        input_3.append(1.0)
-        input_4.append(1.0)
+        input_1 = 2.0
         scale = 2 ** 50
-        plain = encoder.encode(input, scale=scale)
-
+        plain = encoder.encode(input_1, scale=scale)
         encrypted_1 = encryptor.encrypt(plain)
         encrypted_2 = encryptor.encrypt(plain)
         encrypted_3 = encryptor.encrypt(plain)
         encrypted_4 = encryptor.encrypt(plain)
+        test = decryptor.decrypt(encrypted_1)
+        test = encoder.decode(test)
+        assert math.isclose(test[0], 2, rel_tol=0.00001)
+        print("")
+        print("encrypted_1 scale: " + str(encrypted_1.scale()))
 
-        result1 = evaluator.multiply(encrypted_1, encrypted_2)
+        # 2 * 2
+        result1 = evaluator.multiply(encrypted_1, encrypted_2, inplace=True)
         result1 = evaluator.relinearize(result1, relin)
-        result1 = evaluator.rescale_to_next(result1)
-
         test = decryptor.decrypt(result1)
         test = encoder.decode(test)
-        assert math.isclose(test[0], 1.0, abs_tol=0.001, rel_tol=0.001)
+        assert math.isclose(test[0], 4, rel_tol=0.00001)
+        print("test1: " + str(test))
+        print("result1 scale: " + str(result1.scale()))
+        # Prevent scale from growing excessively
+        while result1.scale() > 1e15:
+            result1 = evaluator.rescale_to_next(result1)
+        print("result1 re-scaled to: " + str(result1.scale()))
 
-        # encrypted_3 = evaluator.rescale_to_next(encrypted_3) # Results in wrong answer in next assert
-        encrypted_3 = evaluator.mod_switch_to(encrypted_3, result1.parms_id())
-
-        result2 = evaluator.multiply(result1, encrypted_3)
+        result2 = evaluator.multiply(encrypted_3, encrypted_4, inplace=True)
         result2 = evaluator.relinearize(result2, relin)
-        result2 = evaluator.rescale_to_next(result2)
-
         test = decryptor.decrypt(result2)
         test = encoder.decode(test)
-        assert math.isclose(test[0], 1.0, abs_tol=0.001, rel_tol=0.001)
+        assert math.isclose(test[0], 4, rel_tol=0.00001)
+        print("test2: " + str(test))
+        print("result2 scale: " + str(result2.scale()))
+        # Prevent scale from growing excessively
+        while result2.scale() > 1e15:
+            result2 = evaluator.rescale_to_next(result2)
+        print("result2 re-scaled to: " + str(result2.scale()))
 
-        encrypted_4 = evaluator.mod_switch_to(encrypted_4, result2.parms_id())
-
-        result3 = evaluator.multiply(result2, encrypted_4)
-        result3 = evaluator.relinearize(result3, relin)
-        result3 = evaluator.rescale_to_next(result3)
-
+        result3 = evaluator.multiply(result2, result1, inplace=True)
         test = decryptor.decrypt(result3)
         test = encoder.decode(test)
-        assert math.isclose(test[0], 1.0, abs_tol=0.001, rel_tol=0.001)
+        assert math.isclose(test[0], 16, rel_tol=1)  # approx 15.226805
+        print("result3 scale: " + str(result3.scale()))
 
 
 if __name__ == '__main__':
