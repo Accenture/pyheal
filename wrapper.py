@@ -183,6 +183,13 @@ class Ciphertext(seal.Ciphertext):
         """
         return super().scale()
 
+    def size(self):
+        """
+        Get the size of the Ciphertext.
+        :return: size
+        """
+        return super().size()
+
 
 class CKKSEncoder:
     def __init__(self, ctx):

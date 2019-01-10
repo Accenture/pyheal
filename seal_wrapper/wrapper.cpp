@@ -170,9 +170,6 @@ PYBIND11_MODULE(seal_wrapper, m) {
             .def("save", (void (Ciphertext::*)(std::string &)) &Ciphertext::python_save,
                  py::arg("path"),
                  "Saves Ciphertext object to file given filepath")
-            .def("load", (void (Ciphertext::*)(std::shared_ptr<SEALContext>, std::string &)) &Ciphertext::python_load,
-                 py::arg("context"), py::arg("path"),
-                 "Loads Ciphertext object from file given filepath")
             .def("load", (void (Ciphertext::*)(std::string &)) &Ciphertext::python_load,
                  py::arg("path"),
                  "Loads Ciphertext object from file given filepath")
