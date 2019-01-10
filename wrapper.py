@@ -617,6 +617,7 @@ class Evaluator:
         :param ctx: Encryption context
         """
         self.inner = seal.Evaluator(ctx)
+        self._ctx = ctx
 
     def negate(self, encrypted, inplace=False):
         """
@@ -1012,12 +1013,12 @@ class Evaluator:
         """
         self.inner.set_scale(current, scale)
 
-    def chain_index(self, context, parms_id):
+    def chain_index(self, parms_id):
         """
         Return the current chain index from a given parms_id
         :param parms_id: A given parameter ID chain.
         """
-        return self.inner.chain_index(context, parms_id)
+        return self.inner.chain_index(self._ctx, parms_id)
 
 
 class GaloisKeys(seal.GaloisKeys):
