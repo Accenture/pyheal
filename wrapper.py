@@ -153,21 +153,21 @@ class Ciphertext(seal.Ciphertext):
         """
         return super().is_valid_for(ctx)
 
-    def python_save(self, path):
+    def save(self, path):
         """
         Save to output path
         :param path: File path
         :return: None
         """
-        super().python_save(path)
+        super().save(path)
 
-    def python_load(self, path):
+    def load(self, path):
         """
         Load from path
         :param path: File path
         :return: None
         """
-        super().python_load(path)
+        super().load(path)
 
     def parms_id(self):
         """
@@ -1027,6 +1027,13 @@ class GaloisKeys(seal.GaloisKeys):
         """
         return super().parms_id()
 
+    def save(self, path):
+        """
+        Save to a path
+        :param path: File path
+        """
+        return super().save(path)
+
 
 class KeyGenerator:
     def __init__(self, ctx, secret=None, public=None):
@@ -1148,6 +1155,13 @@ class PublicKey(seal.PublicKey):
         """
         return super().parms_id()
 
+    def save(self, path):
+        """
+        Save to a path
+        :param path: File path
+        """
+        return super().save(path)
+
 
 class FastPRNG(seal.FastPRNG):
     def __init__(self, low_seed, high_seed):
@@ -1194,6 +1208,13 @@ class RelinKey(seal.RelinKeys):
         """
         return super().parms_id()
 
+    def save(self, path):
+        """
+        Save to a path
+        :param path: File path
+        """
+        return super().save(path)
+
 
 class SecretKey(seal.SecretKey):
     def __init__(self, key=None):
@@ -1212,6 +1233,13 @@ class SecretKey(seal.SecretKey):
         :return: parms_id Array of uint64
         """
         return super().parms_id()
+
+    def save(self, path):
+        """
+        Save to a path
+        :param path: File path
+        """
+        return super().save(path)
 
 
 class SmallModulus(seal.SmallModulus):
