@@ -104,7 +104,6 @@ class BatchEncoder:
         self.inner.encode(list_value, destination)
         return destination
 
-
     def decode(self, value, pool=None):
         """
         Batch decode given plaintext.
