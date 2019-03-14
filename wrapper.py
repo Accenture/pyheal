@@ -83,7 +83,7 @@ class BatchEncoder:
         :param pool: Memory pool. If memory pool is specified, destination is NOT used. (Default: None, uses default).
         :return: None
         """
-        list_value = VectorInt64()
+        list_value = VectorDouble()
         if pool is None:
             pool = MemoryPoolHandle().GetPool()
 
@@ -113,7 +113,7 @@ class BatchEncoder:
         """
         if pool is None:
             pool = MemoryPoolHandle().GetPool()
-        destination = VectorInt64()
+        destination = VectorDouble()
         self.inner.decode(value, destination, pool)
         return destination
 
