@@ -113,7 +113,7 @@ class BatchEncoder:
         """
         if pool is None:
             pool = MemoryPoolHandle().GetPool()
-        destination = VectorUInt64()
+        destination = VectorInt64()
         self.inner.decode(value, destination, pool)
         return destination
 
