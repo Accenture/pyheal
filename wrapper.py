@@ -83,19 +83,27 @@ class BatchEncoder:
         :param pool: Memory pool. If memory pool is specified, destination is NOT used. (Default: None, uses default).
         :return: None
         """
+        list_value = VectorInt64()
         if pool is None:
             pool = MemoryPoolHandle().GetPool()
 
+        if isinstance(value, list):
+            for i in value:
+                list_value.append(i)
+        else:
+            list_value.append(value)
+
         destination = Plaintext()
         if inplace:
-            if isinstance(value, Plaintext):
-                self.inner.encode(value, destination)
+            if isinstance(list_value, Plaintext):
+                self.inner.encode(list_value, destination)
                 return destination
             else:
                 raise ValueError("Unable to perform operation in place due to different types")
 
-        self.inner.encode(value, destination)
+        self.inner.encode(list_value, destination)
         return destination
+
 
     def decode(self, value, pool=None):
         """
