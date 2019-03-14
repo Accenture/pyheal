@@ -187,7 +187,7 @@ class TestBFV(unittest.TestCase):
         assert row_size == 2048.0
 
         # Build matrix
-        pod_matrix = heal.VectorUInt64()
+        pod_matrix = heal.VectorInt64()
         for i in range(0, slot_count):
             pod_matrix.append(0)
         pod_matrix[0] = 0
