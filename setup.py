@@ -69,8 +69,9 @@ setup(
     version=__version__,
     author='Ray Chang, Luiz Pizzato',
     description='Homomorphic encryption wrapper',
-    packages=['pyheal', 'seal.seal_wrapper'],
-    ext_modules=[CMakeExtension('seal.seal_wrapper')],
+    packages=['pyheal', 'seal'],
+    # ext_modules=[CMakeExtension('seal.seal_wrapper')],
+    ext_modules=[CMakeExtension('seal')],
     install_requires=['pybind11>=2.2'],
     cmdclass={'build_ext': CMakeBuild},
 
