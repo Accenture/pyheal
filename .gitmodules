@@ -1,0 +1,6 @@
+[submodule "seal_wrapper/seal"]
+	path = seal_wrapper/seal
+	url = https://github.com/CJRChang/SEAL
+[submodule "seal_wrapper/pybind11"]
+	path = seal_wrapper/pybind11
+	url = https://github.com/pybind/pybind11
