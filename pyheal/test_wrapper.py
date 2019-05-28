@@ -14,7 +14,7 @@ python -m unittest tests.py
 try:
     import pyheal.he_wrappers.wrapper as heal
 except ModuleNotFoundError:
-    import wrapper as heal
+    from pyheal import wrapper as heal
 import unittest
 import math
 

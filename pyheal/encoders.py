@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-import wrapper as ph
 import seal_wrapper as seal
-import ciphertext_op as cop
+from pyheal import ciphertext_op as cop, wrapper as ph
 
 
 class ABSDecoder(ABC):

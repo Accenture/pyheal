@@ -1,13 +1,11 @@
 import unittest
 import random
-import copy
 import math
 import time
 
 random.seed(37733)
 
-import encoders as encoders
-import wrapper as ph
+from pyheal import wrapper as ph, encoders as encoders
 
 VALID_OPERATIONS = '+-*^'
 N_RANDOM_TESTS = 2

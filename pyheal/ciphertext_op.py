@@ -2,7 +2,7 @@ import copy
 import math
 from functools import wraps
 
-import wrapper as ph
+from pyheal import wrapper as ph
 
 import seal_wrapper as seal
 
