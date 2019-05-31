@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from pyheal import ciphertext_op as cop, wrapper as ph, seal_wrapper as seal
+import seal_wrapper as seal
+from pyheal import ciphertext_op as cop, wrapper as ph
 
 
 class ABSDecoder(ABC):
@@ -103,6 +104,7 @@ class EncryptorOp(Encryptor):
                  encryptor=None,
                  evaluator=None,
                  relin_key=None,
+                 noise_decoder=None
                  ):
         """
         Create an Encryptor which encrypts Plaintext and returns Ciphertext which are operation friendly.
@@ -110,15 +112,18 @@ class EncryptorOp(Encryptor):
         :param encryptor: A pyheal.he_wrappers.wrapper Encryptor initialised with the required context.
         :param evaluator: A pyheal.he_wrappers.wrapper Evaluator initialised with the required context.
         :param relin_key: Relinearisation keys.
+        :param noise_decoder: A NoiseBudgetDecoder if using BFV.
         """
         super().__init__(plaintext_encoder, encryptor)
         self.evaluator = evaluator
         self.relin_key = relin_key
+        self.noise_decoder = noise_decoder
 
     def _encode(self, dt):
         return cop.CiphertextOp(ciphertext=super()._encode(dt),
                                 evaluator=self.evaluator,
                                 relin_key=self.relin_key,
+                                noise_decoder=self.noise_decoder,
                                 encryptor=self,
                                 plaintext_encoder=self._plaintext_encoder
                                 )
