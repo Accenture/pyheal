@@ -1,10 +1,16 @@
+"""
+Provides CiphertextOp
+
+An extension to wrapper.Ciphertext (or seal.Ciphertext) to enable mathematical operations
+similar to normal number such as: ciphertext + ciphertext, ciphertext + plaintext, ciphertext + 2
+
+"""
+
 import copy
 import math
 from functools import wraps
 
-from pyheal import wrapper as ph
-
-import seal_wrapper as seal
+from pyheal import wrapper as ph, seal_wrapper as seal
 
 
 class CiphertextOp(ph.Ciphertext):
@@ -15,29 +21,44 @@ class CiphertextOp(ph.Ciphertext):
     homomorphic encryption scheme or the decrypted result will not be remotely accurate.
     """
     def __init__(self,
-                 ciphertext=None, ctx=None, parms_id=None,
-                 size_capacity=None, pool=None,
+                 ciphertext=None,
+                 ctx=None,
+                 parms_id=None,
+                 size_capacity=None,
+                 pool=None,
                  evaluator=None,
-                 relin_key=None, noise_decoder=None,
-                 encryptor=None, plaintext_encoder=None
+                 relin_key=None,
+                 encryptor=None,
+                 plaintext_encoder=None
                  ):
+        """
+        CiphertextOp constructor
+
+        :param ciphertext: ciphertext to enable operations on
+        :param ctx: pyheal/seal context (default None)
+        :param parms_id: ciphertext parms id (default None)
+        :param size_capacity: (default None)
+        :param pool: Memory pool (default None)
+        :param evaluator: evaluator to enable operations
+        :param relin_key: relinearlisation keys
+        :param encryptor: encoder is required for an eventual multiplication by zero
+        :param plaintext_encoder: in order to multiply by actual numbers
+        """
+
+
         super().__init__(ciphertext=ciphertext, ctx=ctx, parms_id=parms_id, size_capacity=size_capacity, pool=pool)
         self.set_params(evaluator=evaluator, relin_key=relin_key,
-                        noise_decoder=noise_decoder,
                         encryptor=encryptor, plaintext_encoder=plaintext_encoder)
 
-    def set_params(self, evaluator, relin_key=None, noise_decoder=None, encryptor=None,
-                   plaintext_encoder=None):
+    def set_params(self, evaluator, relin_key=None, encryptor=None, plaintext_encoder=None):
         self.evaluator = evaluator
         self.relin_keys = relin_key
-        self.noise_decoder = noise_decoder
         self.encryptor = encryptor
         self.plaintext_encoder = plaintext_encoder
 
     def get_params(self):
         return dict(evaluator=self.evaluator,
                     relin_key=self.relin_keys,
-                    noise_decoder=self.noise_decoder,
                     encryptor=self.encryptor,
                     plaintext_encoder=self.plaintext_encoder
                     )
@@ -48,7 +69,6 @@ class CiphertextOp(ph.Ciphertext):
             res = CiphertextOp(ciphertext=func(self, *args, **kwargs),
                                evaluator=self.evaluator,
                                relin_key=self.relin_keys,
-                               noise_decoder=self.noise_decoder,
                                encryptor=self.encryptor,
                                plaintext_encoder=self.plaintext_encoder)
 
@@ -209,9 +229,6 @@ class CiphertextOp(ph.Ciphertext):
         else:
             raise ValueError("Multiplication with type {} unsupported without passing an appropriate plaintext encoder".format(type(other)))
 
-        # if self.noise_decoder is not None:
-        #     noise_budget = self.noise_decoder.decode(res)
-        #     print("Noise budget in op result: {}".format(noise_budget))
 
         if 'res' not in vars():
             raise ValueError("Depleted scale or modulus switching chain.")
@@ -220,6 +237,28 @@ class CiphertextOp(ph.Ciphertext):
             res = self.evaluator.relinearize(res, self.relin_keys, inplace=True)  # always inplace
 
         return res
+
+    @ensure_return_ciphertext_op
+    def _internal_div(self, other, inplace):
+        other = CiphertextOp._rescale(self, other)
+        if isinstance(other, seal.Ciphertext):
+            raise ValueError("Division between a ciphertext is not supported.")
+        elif self.plaintext_encoder is not None:
+            # This will effectively find the reciprocal of the plaintext and multiply
+
+            other_num = self.plaintext_encoder.decode(other) if isinstance(other, seal.Plaintext) else \
+                        other
+
+            if other_num == 0:
+                raise ValueError("Cannot divide by zero (plaintext == 0)")
+
+            other_reciprocal = 1./other_num
+            res = self._internal_mul(self.plaintext_encoder.encode(other_reciprocal), inplace=inplace)
+        else:
+            raise ValueError("Division with type {} unsupported without passing an appropriate plaintext encoder".format(type(other)))
+
+        return res
+
 
     @ensure_return_ciphertext_op
     def _internal_pow(self, power, inplace):
@@ -239,10 +278,6 @@ class CiphertextOp(ph.Ciphertext):
                 res = self.evaluator.exponentiate(self, power, self.relin_keys, inplace=inplace)
             else:
                 raise AttributeError("Cannot do higher degrees power without a evaluation key")
-
-        # if self.noise_decoder is not None:
-        #     noise_budget = self.noise_decoder.decode(res)
-        #     print("Noise budget in op result: {}".format(noise_budget))
 
         return res
 
@@ -288,6 +323,12 @@ class CiphertextOp(ph.Ciphertext):
             return self
         else:
             return self.__mul__(other)
+
+    def __truediv__(self, other):
+        return self._internal_div(other, inplace=False)
+
+    def __itruediv__(self, other):
+        return self._internal_div(other, inplace=True)
 
     def __pow__(self, power):
         return self._internal_pow(power, inplace=False)
