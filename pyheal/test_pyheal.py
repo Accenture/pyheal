@@ -329,13 +329,11 @@ class HEOperationTests(object):
         print(output)
         assert math.isclose(output, -6, rel_tol=0.0001)
 
-    def test_simple_divisions(self, encoder1, encoder2):
+    def test_simple_divisions(self):
 
-        if encoder1 is None:
-            encoder1 = self.encryptor_encoder
 
-        if encoder2 is None:
-            encoder2 = self.encryptor_encoder
+        encoder1 = self.encryptor_encoder
+        encoder2 = self.plaintext_encoder
 
         vals = [(23,2),(33,1),(34434,32),(232,3),(2323,5)]
 
@@ -345,10 +343,15 @@ class HEOperationTests(object):
             ev2 = encoder2.encode(v2)
 
             res = v1 / v2
-            print('{} + {} = {}'.format(v1, v2, res))
-            eres_ = ev1 + ev2
+            print('{} / {} = {}'.format(v1, v2, res))
+            eres_ = ev1 / ev2
             eres = self.decryptor_decoder.decode(eres_)
-            print('{} + {} = {} <- E'.format(v1, v2, eres))
+            print('({}) + [{}] = ({}) <- E'.format(v1, v2, eres))
+            self.assertTrue(math.isclose(res, eres, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                            msg="Values are significantly different to each other: {v1} and {v2}".format(v1=res, v2=eres))
+            eres_ = ev1 / v2
+            eres = self.decryptor_decoder.decode(eres_)
+            print('({}) + {} = ({}) <- E'.format(v1, v2, eres))
             self.assertTrue(math.isclose(res, eres, rel_tol=REL_TOL, abs_tol=ABS_TOL),
                             msg="Values are significantly different to each other: {v1} and {v2}".format(v1=res, v2=eres))
 
