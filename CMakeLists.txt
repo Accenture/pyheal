@@ -2,13 +2,16 @@ cmake_minimum_required(VERSION 3.12)
 project(pyheal VERSION 0.2 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 17)
 
+# Retained only for standalone seal_wrapper packaging
+# Ideally use top level pyheal packaging instead
+
 add_subdirectory(pybind11)
 option(BUILD_SEAL "Enable building SEAL" ON)
 
 #set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Release)
 
-if(BUILD_SEAL)
+if (BUILD_SEAL)
     add_subdirectory(seal/src)
     include_directories(seal/src)
     link_directories(seal/lib)
@@ -18,4 +21,4 @@ if(BUILD_SEAL)
             seal_wrapper/base64.cpp
             seal_wrapper/wrapper.cpp)
     target_link_libraries(seal_wrapper PRIVATE seal)
-ENDIF()
+ENDIF ()
