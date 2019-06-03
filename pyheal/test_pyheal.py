@@ -329,7 +329,7 @@ class HEOperationTests(object):
         print(output)
         assert math.isclose(output, -6, rel_tol=0.0001)
 
-    def simple_divisions(self, encoder1, encoder2):
+    def test_simple_divisions(self, encoder1, encoder2):
 
         if encoder1 is None:
             encoder1 = self.encryptor_encoder
