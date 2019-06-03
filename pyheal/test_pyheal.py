@@ -55,6 +55,8 @@ class HEOperationTests(object):
                 res = res - val_mod
             elif oper == '*':
                 res = res * val_mod
+            elif oper == '/':
+                res = res / val_mod
             elif oper == '^':
                 # here val should be a raw number (not encrypted, no plaintext)
                 if self.scheme == 'CKKS' and val > 2:
@@ -326,6 +328,29 @@ class HEOperationTests(object):
         output = self.decryptor_decoder.decode(result3)
         print(output)
         assert math.isclose(output, -6, rel_tol=0.0001)
+
+    def simple_divisions(self, encoder1, encoder2):
+
+        if encoder1 is None:
+            encoder1 = self.encryptor_encoder
+
+        if encoder2 is None:
+            encoder2 = self.encryptor_encoder
+
+        vals = [(23,2),(33,1),(34434,32),(232,3),(2323,5)]
+
+        for v1, v2 in vals:
+
+            ev1 = encoder1.encode(v1)
+            ev2 = encoder2.encode(v2)
+
+            res = v1 / v2
+            print('{} + {} = {}'.format(v1, v2, res))
+            eres_ = ev1 + ev2
+            eres = self.decryptor_decoder.decode(eres_)
+            print('{} + {} = {} <- E'.format(v1, v2, eres))
+            self.assertTrue(math.isclose(res, eres, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                            msg="Values are significantly different to each other: {v1} and {v2}".format(v1=res, v2=eres))
 
 
 class TestHelpers_BFV(unittest.TestCase, HEOperationTests):

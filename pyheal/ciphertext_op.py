@@ -235,6 +235,24 @@ class CiphertextOp(ph.Ciphertext):
         return res
 
     @ensure_return_ciphertext_op
+    def _internal_truediv(self, other, inplace):
+        other = CiphertextOp._rescale(self, other)
+        if isinstance(other, seal.Ciphertext):
+            raise ValueError("Cannot divide a ciphertext with another ciphertext")
+        else:
+            if isinstance(other, seal.Plaintext):
+                other = self.plaintext_encoder.decode(other)
+
+            if other == 0:
+                raise ValueError("Cannot divide by zero")
+
+            res = self._internal_mul(1./other, inplace=inplace)
+
+
+        return res
+
+
+    @ensure_return_ciphertext_op
     def _internal_negate(self, inplace):
         return self.evaluator.negate(self, inplace=inplace)
 
@@ -282,6 +300,12 @@ class CiphertextOp(ph.Ciphertext):
 
     def __ipow__(self, power):
         return self._internal_pow(power, inplace=True)
+
+    def __truediv__(self, other):
+        return self._internal_truediv(other, inplace=False)
+
+    def __itruediv__(self, other):
+        return self._internal_truediv(other, inplace=True)
 
     @ensure_return_ciphertext_op
     def rescale_to_next(self):
