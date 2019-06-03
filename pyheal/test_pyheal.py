@@ -358,14 +358,12 @@ class TestHelpers_BFV(unittest.TestCase, HEOperationTests):
         encryptor_ = ph.Encryptor(ctx=seal_context_, public=public_key_)
         decryptor_ = ph.Decryptor(ctx=seal_context_, secret=secret_key_)
 
-        noise_decoder_ = encoders.NoiseBudgetDecoder(decryptor=decryptor_)
         evaluator_ = ph.Evaluator(ctx=seal_context_)
 
         self.encryptor_encoder = encoders.EncryptorOp(plaintext_encoder=self.plaintext_encoder,
                                                       encryptor=encryptor_,
                                                       evaluator=evaluator_,
-                                                      relin_key=relin_keys_,
-                                                      noise_decoder=noise_decoder_)
+                                                      relin_key=relin_keys_)
 
         self.decryptor_decoder = encoders.Decryptor(plaintext_encoder=self.plaintext_encoder, decryptor=decryptor_)
 
@@ -397,14 +395,13 @@ class TestHelpers_CKKS(unittest.TestCase, HEOperationTests):
         encryptor_ = ph.Encryptor(ctx=seal_context_, public=public_key_)
         decryptor_ = ph.Decryptor(ctx=seal_context_, secret=secret_key_)
 
-        noise_decoder_ = None
         evaluator_ = ph.Evaluator(ctx=seal_context_)
 
         self.encryptor_encoder = encoders.EncryptorOp(plaintext_encoder=self.plaintext_encoder,
                                                       encryptor=encryptor_,
                                                       evaluator=evaluator_,
-                                                      relin_key=relin_keys_,
-                                                      noise_decoder=noise_decoder_)
+                                                      relin_key=relin_keys_
+                                                      )
 
         self.decryptor_decoder = encoders.Decryptor(plaintext_encoder=self.plaintext_encoder, decryptor=decryptor_)
 

@@ -18,26 +18,23 @@ class CiphertextOp(ph.Ciphertext):
                  ciphertext=None, ctx=None, parms_id=None,
                  size_capacity=None, pool=None,
                  evaluator=None,
-                 relin_key=None, noise_decoder=None,
-                 encryptor=None, plaintext_encoder=None
+                 relin_key=None,
+                 encryptor=None,
+                 plaintext_encoder=None
                  ):
         super().__init__(ciphertext=ciphertext, ctx=ctx, parms_id=parms_id, size_capacity=size_capacity, pool=pool)
         self.set_params(evaluator=evaluator, relin_key=relin_key,
-                        noise_decoder=noise_decoder,
                         encryptor=encryptor, plaintext_encoder=plaintext_encoder)
 
-    def set_params(self, evaluator, relin_key=None, noise_decoder=None, encryptor=None,
-                   plaintext_encoder=None):
+    def set_params(self, evaluator, relin_key=None, encryptor=None, plaintext_encoder=None):
         self.evaluator = evaluator
         self.relin_keys = relin_key
-        self.noise_decoder = noise_decoder
         self.encryptor = encryptor
         self.plaintext_encoder = plaintext_encoder
 
     def get_params(self):
         return dict(evaluator=self.evaluator,
                     relin_key=self.relin_keys,
-                    noise_decoder=self.noise_decoder,
                     encryptor=self.encryptor,
                     plaintext_encoder=self.plaintext_encoder
                     )
@@ -48,7 +45,6 @@ class CiphertextOp(ph.Ciphertext):
             res = CiphertextOp(ciphertext=func(self, *args, **kwargs),
                                evaluator=self.evaluator,
                                relin_key=self.relin_keys,
-                               noise_decoder=self.noise_decoder,
                                encryptor=self.encryptor,
                                plaintext_encoder=self.plaintext_encoder)
 
@@ -209,10 +205,6 @@ class CiphertextOp(ph.Ciphertext):
         else:
             raise ValueError("Multiplication with type {} unsupported without passing an appropriate plaintext encoder".format(type(other)))
 
-        # if self.noise_decoder is not None:
-        #     noise_budget = self.noise_decoder.decode(res)
-        #     print("Noise budget in op result: {}".format(noise_budget))
-
         if 'res' not in vars():
             raise ValueError("Depleted scale or modulus switching chain.")
 
@@ -239,10 +231,6 @@ class CiphertextOp(ph.Ciphertext):
                 res = self.evaluator.exponentiate(self, power, self.relin_keys, inplace=inplace)
             else:
                 raise AttributeError("Cannot do higher degrees power without a evaluation key")
-
-        # if self.noise_decoder is not None:
-        #     noise_budget = self.noise_decoder.decode(res)
-        #     print("Noise budget in op result: {}".format(noise_budget))
 
         return res
 
