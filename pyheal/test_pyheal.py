@@ -346,12 +346,12 @@ class HEOperationTests(object):
             print('{} / {} = {}'.format(v1, v2, res))
             eres_ = ev1 / ev2
             eres = self.decryptor_decoder.decode(eres_)
-            print('({}) + [{}] = ({}) <- E'.format(v1, v2, eres))
+            print('({}) / [{}] = ({}) <- E'.format(v1, v2, eres))
             self.assertTrue(math.isclose(res, eres, rel_tol=REL_TOL, abs_tol=ABS_TOL),
                             msg="Values are significantly different to each other: {v1} and {v2}".format(v1=res, v2=eres))
             eres_ = ev1 / v2
             eres = self.decryptor_decoder.decode(eres_)
-            print('({}) + {} = ({}) <- E'.format(v1, v2, eres))
+            print('({}) / {} = ({}) <- E'.format(v1, v2, eres))
             self.assertTrue(math.isclose(res, eres, rel_tol=REL_TOL, abs_tol=ABS_TOL),
                             msg="Values are significantly different to each other: {v1} and {v2}".format(v1=res, v2=eres))
 
