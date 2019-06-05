@@ -168,15 +168,17 @@ class CiphertextOp(wrapper.Ciphertext):
                     plain_one = this.plaintext_encoder.encode(1, parms_id=other.parms_id(), scale=this.scale()/other.scale())
                     other = this.evaluator.multiply_plain(other, plain_one, inplace=True)
             else:
-                factor = other.scale()/this.scale()
-                if factor > 1e30:
-                    plain_one = this.plaintext_encoder.encode(1, parms_id=this.parms_id(), scale=factor/5)
-                    this = this.evaluator.multiply_plain(this, plain_one, inplace=True)
-                    plain_one = this.plaintext_encoder.encode(1, parms_id=this.parms_id(), scale=5)
-                    this = this.evaluator.multiply_plain(this, plain_one, inplace=True)
-                else:
-                    plain_one = this.plaintext_encoder.encode(1, parms_id=this.parms_id(), scale=other.scale()/this.scale())
-                    this = this.evaluator.multiply_plain(this, plain_one, inplace=True)
+                #TODO: ensure below works (same as prior)
+                other, this = CiphertextOp._multiply_one_rescale(other, this)
+                # factor = other.scale()/this.scale()
+                # if factor > 1e30:
+                #     plain_one = this.plaintext_encoder.encode(1, parms_id=this.parms_id(), scale=factor/5)
+                #     this = this.evaluator.multiply_plain(this, plain_one, inplace=True)
+                #     plain_one = this.plaintext_encoder.encode(1, parms_id=this.parms_id(), scale=5)
+                #     this = this.evaluator.multiply_plain(this, plain_one, inplace=True)
+                # else:
+                #     plain_one = this.plaintext_encoder.encode(1, parms_id=this.parms_id(), scale=other.scale()/this.scale())
+                #     this = this.evaluator.multiply_plain(this, plain_one, inplace=True)
         return this, other
 
     @ensure_return_ciphertext_op
