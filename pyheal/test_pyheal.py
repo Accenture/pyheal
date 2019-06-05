@@ -5,7 +5,8 @@ import time
 
 random.seed(37733)
 
-from pyheal import wrapper as ph, encoders as encoders
+from pyheal import wrapper
+from pyheal import encoders
 
 VALID_OPERATIONS = '+-*^'
 N_RANDOM_TESTS = 2
@@ -30,7 +31,7 @@ class HEOperationTests(object):
             return val_, "[{}]".format(val)
         else:
             if self.scheme == 'CKKS':
-                val_ = self.plaintext_encoder.encode(ph.VectorDouble([val]))
+                val_ = self.plaintext_encoder.encode(wrapper.VectorDouble([val]))
             else:
                 val_ = self.plaintext_encoder.encode(val)
 
@@ -364,29 +365,29 @@ class TestHelpers_BFV(unittest.TestCase, HEOperationTests):
         coeff_modulus_128 = 1 << 12
         plain_modulus = 1 << 10
 
-        parms = ph.EncryptionParameters(scheme_type=self.scheme)
+        parms = wrapper.EncryptionParameters(scheme_type=self.scheme)
         parms.set_poly_modulus(poly_modulus)
-        parms.set_coeff_modulus(ph.coeff_modulus_128(coeff_modulus_128))
+        parms.set_coeff_modulus(wrapper.coeff_modulus_128(coeff_modulus_128))
         parms.set_plain_modulus(plain_modulus)
 
-        seal_context_ = ph.Context(parms).context
+        seal_context_ = wrapper.Context(parms).context
 
-        keygen = ph.KeyGenerator(seal_context_)
+        keygen = wrapper.KeyGenerator(seal_context_)
         public_key_ = keygen.public_key()
         secret_key_ = keygen.secret_key()
         relin_keys_ = keygen.relin_keys(decomposition_bit_count=16, count=2)
 
         self.plaintext_encoder = encoders.PlainTextEncoder(
-            encoder=ph.FractionalEncoder(smallmod=ph.SmallModulus(plain_modulus),
+            encoder=wrapper.FractionalEncoder(smallmod=wrapper.SmallModulus(plain_modulus),
                                          poly_modulus_degree=poly_modulus,
                                          integer_coeff_count=64,
                                          fraction_coeff_count=32,
                                          base=2))
 
-        encryptor_ = ph.Encryptor(ctx=seal_context_, public=public_key_)
-        decryptor_ = ph.Decryptor(ctx=seal_context_, secret=secret_key_)
+        encryptor_ = wrapper.Encryptor(ctx=seal_context_, public=public_key_)
+        decryptor_ = wrapper.Decryptor(ctx=seal_context_, secret=secret_key_)
 
-        evaluator_ = ph.Evaluator(ctx=seal_context_)
+        evaluator_ = wrapper.Evaluator(ctx=seal_context_)
 
         self.encryptor_encoder = encoders.EncryptorOp(plaintext_encoder=self.plaintext_encoder,
                                                       encryptor=encryptor_,
@@ -403,27 +404,27 @@ class TestHelpers_CKKS(unittest.TestCase, HEOperationTests):
     def setUp(self):
         self.scheme = "CKKS"
 
-        parms = ph.EncryptionParameters(scheme_type=self.scheme)
+        parms = wrapper.EncryptionParameters(scheme_type=self.scheme)
         parms.set_poly_modulus(8192)
-        parms.set_coeff_modulus([ph.small_mods_40bit(0), ph.small_mods_40bit(1),
-                                 ph.small_mods_40bit(2), ph.small_mods_40bit(3),
-                                 ph.small_mods_40bit(4), ph.small_mods_40bit(5)
+        parms.set_coeff_modulus([wrapper.small_mods_40bit(0), wrapper.small_mods_40bit(1),
+                                 wrapper.small_mods_40bit(2), wrapper.small_mods_40bit(3),
+                                 wrapper.small_mods_40bit(4), wrapper.small_mods_40bit(5)
                                  ])
 
-        seal_context_ = ph.Context(parms).context
+        seal_context_ = wrapper.Context(parms).context
 
-        keygen = ph.KeyGenerator(seal_context_)
+        keygen = wrapper.KeyGenerator(seal_context_)
         public_key_ = keygen.public_key()
         secret_key_ = keygen.secret_key()
         relin_keys_ = keygen.relin_keys(decomposition_bit_count=16, count=2)
 
 
-        self.plaintext_encoder = encoders.PlainTextEncoder(encoder=ph.CKKSEncoder(ctx=seal_context_), scale=2 ** 40)
+        self.plaintext_encoder = encoders.PlainTextEncoder(encoder=wrapper.CKKSEncoder(ctx=seal_context_), scale=2 ** 40)
 
-        encryptor_ = ph.Encryptor(ctx=seal_context_, public=public_key_)
-        decryptor_ = ph.Decryptor(ctx=seal_context_, secret=secret_key_)
+        encryptor_ = wrapper.Encryptor(ctx=seal_context_, public=public_key_)
+        decryptor_ = wrapper.Decryptor(ctx=seal_context_, secret=secret_key_)
 
-        evaluator_ = ph.Evaluator(ctx=seal_context_)
+        evaluator_ = wrapper.Evaluator(ctx=seal_context_)
 
         self.encryptor_encoder = encoders.EncryptorOp(plaintext_encoder=self.plaintext_encoder,
                                                       encryptor=encryptor_,

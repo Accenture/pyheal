@@ -2,12 +2,12 @@ import copy
 import math
 from functools import wraps
 
-from pyheal import wrapper as ph
+from pyheal import wrapper
 
 import seal_wrapper as seal
 
 
-class CiphertextOp(ph.Ciphertext):
+class CiphertextOp(wrapper.Ciphertext):
     """
     CiphertextOp is a wrapper class for homomorphic encryption Ciphertexts which
      enable direct operations similar to numbers (i.e. "+", "-", "*", "^").
@@ -18,21 +18,51 @@ class CiphertextOp(ph.Ciphertext):
                  ciphertext=None, ctx=None, parms_id=None,
                  size_capacity=None, pool=None,
                  evaluator=None,
-                 relin_key=None,
+                 relin_keys=None,
                  encryptor=None,
                  plaintext_encoder=None
                  ):
+        """
+            Contructor
+            
+        :param ciphertext: wrapper ciphertext
+        :param ctx: context
+        :param parms_id: parms_id
+        :param size_capacity: size capacity
+        :param pool: memory pool
+        :param evaluator: evaluator for homomorphic encrypted maths operations
+        :param relin_keys: relinearlisation keys
+        :param encryptor: encryptor encoder
+        :param plaintext_encoder: plaintext encoder
+        """
+        
+        # Set super from wrapper.Ciphertext
         super().__init__(ciphertext=ciphertext, ctx=ctx, parms_id=parms_id, size_capacity=size_capacity, pool=pool)
-        self.set_params(evaluator=evaluator, relin_key=relin_key,
+
+        # Set the new params
+        self.set_params(evaluator=evaluator, relin_keys=relin_keys,
                         encryptor=encryptor, plaintext_encoder=plaintext_encoder)
 
-    def set_params(self, evaluator, relin_key=None, encryptor=None, plaintext_encoder=None):
+    def set_params(self, evaluator, relin_keys=None, encryptor=None, plaintext_encoder=None):
+        """
+        Setting params that are new in the CiphertextOp
+
+        :param evaluator: evaluator for homomorphic encrypted maths operations
+        :param relin_keys: relinearlisation keys
+        :param encryptor: encryptor encoder
+        :param plaintext_encoder: plaintext encoder
+        """
+
         self.evaluator = evaluator
-        self.relin_keys = relin_key
+        self.relin_keys = relin_keys
         self.encryptor = encryptor
         self.plaintext_encoder = plaintext_encoder
 
     def get_params(self):
+        """
+            Return a dictionary with the extra params as in set_params
+        :return:
+        """
         return dict(evaluator=self.evaluator,
                     relin_key=self.relin_keys,
                     encryptor=self.encryptor,
@@ -40,11 +70,14 @@ class CiphertextOp(ph.Ciphertext):
                     )
 
     def ensure_return_ciphertext_op(func):
+        """
+            Decorator to ensure that any calculation returns a CiphertextOp object
+        """
         @wraps(func)
         def func_wrapper(self, *args, **kwargs):
             res = CiphertextOp(ciphertext=func(self, *args, **kwargs),
                                evaluator=self.evaluator,
-                               relin_key=self.relin_keys,
+                               relin_keys=self.relin_keys,
                                encryptor=self.encryptor,
                                plaintext_encoder=self.plaintext_encoder)
 
@@ -54,6 +87,9 @@ class CiphertextOp(ph.Ciphertext):
 
     @staticmethod
     def _rescale(this, other, scale_out_of_bounds=False):
+        """
+            Rescale the ciphertext to ensure operations works. Performed before all math operations
+        """
 
         if not (isinstance(other, seal.Ciphertext) or isinstance(other, seal.Plaintext)):
             return other
@@ -113,6 +149,10 @@ class CiphertextOp(ph.Ciphertext):
 
     @staticmethod
     def _multiply_one_rescale(this, other):
+        """
+            Rescale by multiplying by 1
+        """
+
         if not math.isclose(this.scale(), other.scale()):
             # Rescaling required
             if this.scale() > other.scale():
@@ -141,6 +181,12 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def _internal_add(self, other, inplace):
+        """
+            Add operation as done internally
+        :param other: element to add to self
+        :param inplace: whether it will be executed in place
+        :return: self + other
+        """
         other = CiphertextOp._rescale(self, other)
         if isinstance(other, seal.Ciphertext):
             res = self.evaluator.add(self, other, inplace=inplace)
@@ -156,6 +202,13 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def _internal_sub(self, other, inplace):
+        """
+            Subtraction operation as done internally
+        :param other: element to subtract to self
+        :param inplace: whether it will be executed in place
+        :return: self - other
+        """
+
         other = CiphertextOp._rescale(self, other)
         if isinstance(other, seal.Ciphertext):
             res = self.evaluator.sub(self, other, inplace=inplace)
@@ -171,6 +224,12 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def _internal_mul(self, other, inplace):
+        """
+            Multiplication operation as done internally
+        :param other: element to multiply to self
+        :param inplace: whether it will be executed in place
+        :return: self * other
+        """
         other = CiphertextOp._rescale(self, other)
         if isinstance(other, seal.Ciphertext):
 
@@ -215,6 +274,13 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def _internal_pow(self, power, inplace):
+        """
+            Power operation as done internally (doesn't work with high powers)
+        :param power: power to apply to self
+        :param inplace: whether it will be executed in place
+        :return: self**other
+        """
+
         if power == 0:
             if self.encryptor is not None:
                 return self.encryptor.encode(1)  # unsure how this works inplace
@@ -236,6 +302,12 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def _internal_truediv(self, other, inplace):
+        """
+            Division (true) operation as done internally
+        :param other: element to divide self
+        :param inplace: whether it will be executed in place
+        :return: self / other
+        """
         other = CiphertextOp._rescale(self, other)
         if isinstance(other, seal.Ciphertext):
             raise ValueError("Cannot divide a ciphertext with another ciphertext")
@@ -254,6 +326,11 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def _internal_negate(self, inplace):
+        """
+            Negate self
+        :param inplace: whether it will be executed in place
+        :return: -self
+        """
         return self.evaluator.negate(self, inplace=inplace)
 
     def __add__(self, other):
@@ -309,5 +386,8 @@ class CiphertextOp(ph.Ciphertext):
 
     @ensure_return_ciphertext_op
     def rescale_to_next(self):
+        """
+            Ensure rescale on self
+        """
         res = self.evaluator.rescale_to_next(self)
         return res
