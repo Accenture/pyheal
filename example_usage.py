@@ -49,32 +49,136 @@ def main():
     encryptor_encoder, decryptor_decoder = get_encryptor_decryptor()
 
     # Sum two numbers
+    print("\n\n")
 
     a, b = 10, 25
 
+    # normal operation
     r = a + b
     print("{a}+{b} = {r}".format(a=a, b=b, r=r))
 
     ea = encryptor_encoder.encode(a)
     eb = encryptor_encoder.encode(b)
 
+    # encrypted operation
     er = ea + eb
     print("{a})+{b} = {r}".format(a=ea, b=eb, r=er))
-    print("Decrypted r = {r}".format(decryptor_decoder.decode(er)))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
 
+    # encrypted operation with unencrypted number
     er = ea + b
     print("{a})+{b} = {r}".format(a=ea, b=eb, r=er))
-    print("Decrypted r = {r}".format(decryptor_decoder.decode(er)))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
 
+    # operation with unencrypted number
     er = a + eb
     print("{a})+{b} = {r}".format(a=ea, b=eb, r=er))
-    print("Decrypted r = {r}".format(decryptor_decoder.decode(er)))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
 
 
+    # Subtract two numbers
+    print("\n\n")
+    # normal operation
+    r = a - b
+    print("{a} - {b} = {r}".format(a=a, b=b, r=r))
+
+    # encrypted operation
+    er = ea - eb
+    print("{a} - {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
+
+    # encrypted operation with unencrypted number
+    er = ea - b
+    print("{a} - {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
+
+    # operation with unencrypted number
+    er = a - eb
+    print("{a} - {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
 
 
+    # Multiply two numbers
+    print("\n\n")
+    # normal operation
+    r = a * b
+    print("{a} * {b} = {r}".format(a=a, b=b, r=r))
 
-    #
+    # encrypted operation
+    er = ea * eb
+    print("{a} * {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
+
+    # encrypted operation with unencrypted number
+    er = ea * b
+    print("{a} * {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted r = {r}".format(r=decryptor_decoder.decode(er)))
+
+    # operation with unencrypted number
+    er = a * eb
+    print("{a} * {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
+
+
+    # Division two numbers
+    print("\n\n")
+    # normal operation
+    r = a / b
+    print("{a} / {b} = {r}".format(a=a, b=b, r=r))
+
+    # encrypted operation
+    try:
+        er = ea / eb
+    except ValueError:
+        print("Cannot perform {a} / {b}".format(a=ea, b=eb))
+
+
+    # encrypted operation with unencrypted number
+    er = ea / b
+    print("{a} / {b} = {r}".format(a=ea, b=eb, r=er))
+    print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
+
+    # operation with unencrypted number
+    try:
+        er = a / eb
+    except TypeError:
+        print("Cannot perform {a} / {b}".format(a=ea, b=eb))
+
+
+    # Power of encrypted number
+    #   exponent need to be integers and a number above 0
+    #   large exponents won't work
+    print("\n\n")
+
+    for p in range(9):
+        r = a ** p
+
+        print("{a}^{p} = {r}".format(a=a, p=p, r=r))
+        er = ea ** p
+        print("{a}^{p} = {r}".format(a=ea, p=p, r=er))
+        print("\tDecrypted = {r}".format(r=decryptor_decoder.decode(er)))
+
+
+    # Calculate the sum and mean of a list
+    print("\n\n")
+    l = [1,2,3,4,5,6,7,8,9]
+    s = sum(l)
+    m = sum(l)/len(l)
+
+    print("List: {l}".format(l=l))
+    print("Sum = {s}".format(s=s))
+    print("Mean = {m}".format(m=m))
+
+    el = encryptor_encoder.encode(l)
+    es = sum(el)
+    em = sum(el) / len(el)
+
+    print("List: {l}".format(l=el))
+    print("Sum = {s}".format(s=es))
+    print("\tDecrypted = {s}".format(s=decryptor_decoder.decode(es)))
+    print("Mean = {m}".format(m=em))
+    print("\tDecrypted = {m}".format(m=decryptor_decoder.decode(em)))
+
 
 
 
