@@ -58,4 +58,4 @@ result = v1 + v2
 print(decryptor.decrypt(result)) # Prints 30 after decrypt 
 
 ```
-See [example_exage.py](example_exage.py) for more usage examples.
+See [example_usage.py](example_usage.py) for more usage examples.
