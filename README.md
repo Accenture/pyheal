@@ -43,5 +43,19 @@ pip3 install .
 # Usage
 ```python
 import pyheal
+
+
+# Set encryption params + obtain an EncryptorOp object
+...
+encryptor = EncryptorOp(...)
+decryptor = Decryptor(...)
+
+v1 = encryptor_encoder.encode(10)
+v2 = encryptor_encoder.encode(20)
+
+result = v1 + v2
+
+print(decryptor.decrypt(result)) # Prints 30 after decrypt 
+
 ```
-See `tests.py` for re-implemented examples.
+See [example_exage.py](example_exage.py) for more usage examples.
