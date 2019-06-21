@@ -73,6 +73,5 @@ setup(
     ext_modules=[CMakeExtension('seal_wrapper')],
     install_requires=['pybind11>=2.2'],
     cmdclass={'build_ext': CMakeBuild},
-
     zip_safe=False,
 )
