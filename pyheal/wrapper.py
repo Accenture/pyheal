@@ -6,10 +6,7 @@ This may eventually provide a switching layer between underlying homomorphic enc
 Note this currently does not perform comprehensive checking for validity.
 """
 
-try:
-    import seal_wrapper as seal
-except ModuleNotFoundError:
-    import pyheal.he_wrappers.seal_wrapper as seal
+import seal_wrapper as seal
 
 from abc import ABCMeta, abstractmethod
 

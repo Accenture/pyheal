@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(seal_wrapper VERSION 0.1 LANGUAGES CXX C)
+project(pyheal VERSION 0.2 LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 17)
 
 # Retained only for standalone seal_wrapper packaging

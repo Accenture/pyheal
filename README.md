@@ -1,10 +1,17 @@
-# he_wrappers
+# pyHeal
 This project implements Python wrappers for Homomorphic Encryption libraries, aimed at being more Python friendly.
 
 It currently contains:
 - A pybind11 based Python wrapper for [Microsoft SEAL](https://github.com/CJRChang/SEAL) in `seal_wrapper`
-- A Pythonic wrapper for `seal_wrapper` in `wrapper.py`
+- A Pythonic wrapper for `seal_wrapper` in `pyheal/wrapper.py`
+- A Python ciphertext type of object that allows math operations as if they were python numbers in `pyheal/ciphertext_op.py`
+- A standard encoder/decoder interface for seal encoders and encryptors for use of the `CiphertextOp` objects in `pyheal/encoders.py`.
+     
+
+Tests:
 - A partial re-implementation of [Microsoft SEAL's examples](https://github.com/CJRChang/SEAL) using `wrapper.py` in `tests.py`
+- A large number of tests for PyHEAL and `CiphertextOp` in `pyheal/test_pyheal.py` 
+
 
 # Setup
 Clone using:
@@ -30,12 +37,25 @@ source ./venv/bin/activate
 
 Install dependencies and package:
 ```bash
-pip3 install -r requirements.txt
 pip3 install .
 ```
 
 # Usage
 ```python
-import wrapper as heal
+import pyheal
+
+
+# Set encryption params + obtain an EncryptorOp object
+...
+encryptor = EncryptorOp(...)
+decryptor = Decryptor(...)
+
+v1 = encryptor_encoder.encode(10)
+v2 = encryptor_encoder.encode(20)
+
+result = v1 + v2
+
+print(decryptor.decrypt(result)) # Prints 30 after decrypt 
+
 ```
-See `tests.py` for re-implemented examples.
+See [example_usage.py](example_usage.py) for more usage examples.

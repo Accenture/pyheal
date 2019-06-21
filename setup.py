@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """
-seal_wrapper setup.py
-
-This is only retained for standalone packaging purposes.
-Ideally use top level packaging instead and import via pyheal.he_wrappers.seal_wrapper
+he_wrappers setup.py
 """
 
 import os
@@ -16,7 +13,7 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 class CMakeExtension(Extension):
@@ -51,7 +48,7 @@ class CMakeBuild(build_ext):
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-            if sys.maxsize > 2**32:
+            if sys.maxsize > 2 ** 32:
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
         else:
@@ -68,11 +65,11 @@ class CMakeBuild(build_ext):
 
 
 setup(
-    name='seal_wrapper',
+    name='pyheal',
     version=__version__,
     author='Ray Chang, Luiz Pizzato',
     description='Homomorphic encryption wrapper',
-    packages=['seal_wrapper'],
+    packages=['pyheal'],
     ext_modules=[CMakeExtension('seal_wrapper')],
     install_requires=['pybind11>=2.2'],
     cmdclass={'build_ext': CMakeBuild},
