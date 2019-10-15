@@ -15,9 +15,9 @@ Tests:
 
 # Setup
 Clone using:
-Git v2.13+: `git clone --recurse-submodules (repository URL)`
+Git v2.13+: `git clone --recurse-submodules https://github.com/Accenture/pyheal.git`
 
-Git v1.6.5 - v2.12: `git clone --recursive (repository URL)`
+Git v1.6.5 - v2.12: `git clone --recursive https://github.com/Accenture/pyheal.git`
 
 For a repository that has already been cloned or older versions of git run:
 `git submodule update --init --recursive`
@@ -50,8 +50,8 @@ import pyheal
 encryptor = EncryptorOp(...)
 decryptor = Decryptor(...)
 
-v1 = encryptor_encoder.encode(10)
-v2 = encryptor_encoder.encode(20)
+v1 = encryptor.encode(10)
+v2 = encryptor.encode(20)
 
 result = v1 + v2
 
