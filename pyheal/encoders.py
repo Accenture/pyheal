@@ -86,7 +86,9 @@ class BaseEncoder(ABSEncoder):
         """
 
         # Check if data is plaintext
-        if isinstance(dt, list):
+        if isinstance(dt, dict):
+            return {k:self.encode(v, **kwargs) for k, v in dt.items()}
+        elif isinstance(dt, list):
             return [self.encode(v_, **kwargs) for v_ in dt]
         else:
             return self._encode(dt)
