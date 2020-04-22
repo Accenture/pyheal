@@ -89,7 +89,21 @@ class BaseEncoder(ABSEncoder):
         if isinstance(dt, list):
             return [self.encode(v_, **kwargs) for v_ in dt]
         else:
-            return self._encode(dt, **kwargs)
+            return self._encode(dt)
+
+
+class PassthroughEncoder(BaseEncoder, BaseDecoder):
+    """
+    Passthrough encoder just passthrough the data. Doesn't encode or decode
+    does nothing, uses bare BaseEncoder
+    """
+    def __init__(self):
+        """
+        PassthroughEncoder constructor
+        """
+        BaseEncoder.__init__(self, encoder=None)
+        BaseDecoder.__init__(self, decoder=None)
+
 
 
 class PlainTextEncoder(BaseEncoder, BaseDecoder):

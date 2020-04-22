@@ -1,4 +1,6 @@
 # pyHeal
+![PyHEAL Package](https://github.com/Accenture/pyheal/workflows/PyHEAL%20Package/badge.svg)
+
 This project implements Python wrappers for Homomorphic Encryption libraries, aimed at being more Python friendly.
 
 It currently contains:

@@ -196,7 +196,8 @@ class CiphertextOp(wrapper.Ciphertext):
             # Note: add/sum to zero is internally optimised
             res = self.evaluator.add_plain(self, other, inplace=inplace)
         elif self.plaintext_encoder is not None:
-            res = self._internal_add(self.plaintext_encoder.encode(other), inplace=inplace)
+            other = CiphertextOp._rescale(self, self.plaintext_encoder.encode(other))
+            res = self._internal_add(other, inplace=inplace)
         else:
             raise ValueError("Addition with type {} unsupported without passing an appropriate plaintext encoder".format(type(other)))
 
@@ -218,7 +219,8 @@ class CiphertextOp(wrapper.Ciphertext):
             # Note: add/sum to zero is internally optimised
             res = self.evaluator.sub_plain(self, other, inplace=inplace)
         elif self.plaintext_encoder is not None:
-            res = self._internal_sub(self.plaintext_encoder.encode(other), inplace=inplace)
+            other = CiphertextOp._rescale(self, self.plaintext_encoder.encode(other))
+            res = self._internal_sub(other, inplace=inplace)
         else:
             raise ValueError("Substractiom with type {} unsupported without passing an appropriate plaintext encoder".format(type(other)))
 
@@ -262,7 +264,8 @@ class CiphertextOp(wrapper.Ciphertext):
                         continue
 
         elif self.plaintext_encoder is not None:
-            res = self._internal_mul(self.plaintext_encoder.encode(other), inplace=inplace)
+            other = CiphertextOp._rescale(self, self.plaintext_encoder.encode(other))
+            res = self._internal_mul(other, inplace=inplace)
         else:
             raise ValueError("Multiplication with type {} unsupported without passing an appropriate plaintext encoder".format(type(other)))
 

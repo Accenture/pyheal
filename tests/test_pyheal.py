@@ -30,7 +30,7 @@ class HEOperationTests(object):
 
             return val_, "[{}]".format(val)
         else:
-            if self.scheme == 'CKKS':
+            if self.scheme == 'CKKS': # Review this as we might not need encodig
                 val_ = self.plaintext_encoder.encode(wrapper.VectorDouble([val]))
             else:
                 val_ = self.plaintext_encoder.encode(val)
@@ -334,7 +334,7 @@ class HEOperationTests(object):
 
 
         encoder1 = self.encryptor_encoder
-        encoder2 = self.plaintext_encoder
+        encoder2 = encoders.PassthroughEncoder()
 
         vals = [(23,2),(33,1),(34434,32),(232,3),(2323,5)]
 
@@ -400,42 +400,42 @@ class TestHelpers_BFV(unittest.TestCase, HEOperationTests):
         pass
 
 
-class TestHelpers_CKKS(unittest.TestCase, HEOperationTests):
-    def setUp(self):
-        self.scheme = "CKKS"
-
-        parms = wrapper.EncryptionParameters(scheme_type=self.scheme)
-        parms.set_poly_modulus(8192)
-        parms.set_coeff_modulus([wrapper.small_mods_40bit(0), wrapper.small_mods_40bit(1),
-                                 wrapper.small_mods_40bit(2), wrapper.small_mods_40bit(3),
-                                 wrapper.small_mods_40bit(4), wrapper.small_mods_40bit(5)
-                                 ])
-
-        seal_context_ = wrapper.Context(parms).context
-
-        keygen = wrapper.KeyGenerator(seal_context_)
-        public_key_ = keygen.public_key()
-        secret_key_ = keygen.secret_key()
-        relin_keys_ = keygen.relin_keys(decomposition_bit_count=16, count=2)
-
-
-        self.plaintext_encoder = encoders.PlainTextEncoder(encoder=wrapper.CKKSEncoder(ctx=seal_context_), scale=2 ** 40)
-
-        encryptor_ = wrapper.Encryptor(ctx=seal_context_, public=public_key_)
-        decryptor_ = wrapper.Decryptor(ctx=seal_context_, secret=secret_key_)
-
-        evaluator_ = wrapper.Evaluator(ctx=seal_context_)
-
-        self.encryptor_encoder = encoders.EncryptorOp(plaintext_encoder=self.plaintext_encoder,
-                                                      encryptor=encryptor_,
-                                                      evaluator=evaluator_,
-                                                      relin_key=relin_keys_
-                                                      )
-
-        self.decryptor_decoder = encoders.Decryptor(plaintext_encoder=self.plaintext_encoder, decryptor=decryptor_)
-
-    def tearDown(self):
-        pass
+# class TestHelpers_CKKS(unittest.TestCase, HEOperationTests):
+#     def setUp(self):
+#         self.scheme = "CKKS"
+#
+#         parms = wrapper.EncryptionParameters(scheme_type=self.scheme)
+#         parms.set_poly_modulus(8192)
+#         parms.set_coeff_modulus([wrapper.small_mods_40bit(0), wrapper.small_mods_40bit(1),
+#                                  wrapper.small_mods_40bit(2), wrapper.small_mods_40bit(3),
+#                                  wrapper.small_mods_40bit(4), wrapper.small_mods_40bit(5)
+#                                  ])
+#
+#         seal_context_ = wrapper.Context(parms).context
+#
+#         keygen = wrapper.KeyGenerator(seal_context_)
+#         public_key_ = keygen.public_key()
+#         secret_key_ = keygen.secret_key()
+#         relin_keys_ = keygen.relin_keys(decomposition_bit_count=16, count=2)
+#
+#
+#         self.plaintext_encoder = encoders.PlainTextEncoder(encoder=wrapper.CKKSEncoder(ctx=seal_context_), scale=2 ** 40)
+#
+#         encryptor_ = wrapper.Encryptor(ctx=seal_context_, public=public_key_)
+#         decryptor_ = wrapper.Decryptor(ctx=seal_context_, secret=secret_key_)
+#
+#         evaluator_ = wrapper.Evaluator(ctx=seal_context_)
+#
+#         self.encryptor_encoder = encoders.EncryptorOp(plaintext_encoder=self.plaintext_encoder,
+#                                                       encryptor=encryptor_,
+#                                                       evaluator=evaluator_,
+#                                                       relin_key=relin_keys_
+#                                                       )
+#
+#         self.decryptor_decoder = encoders.Decryptor(plaintext_encoder=self.plaintext_encoder, decryptor=decryptor_)
+#
+#     def tearDown(self):
+#         pass
 
 
 if __name__ == '__main__':
