@@ -13,7 +13,7 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-__version__ = "0.2"
+__version__ = "0.2.1"
 
 
 class CMakeExtension(Extension):
@@ -71,7 +71,7 @@ setup(
     description='Homomorphic encryption wrapper',
     packages=['pyheal'],
     ext_modules=[CMakeExtension('seal_wrapper')],
-    install_requires=['pybind11>=2.2'],
+    install_requires=['pybind11>=2.2', 'pytest', 'numpy'],
     cmdclass={'build_ext': CMakeBuild},
     zip_safe=False,
 )
