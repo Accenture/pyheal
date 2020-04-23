@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 import seal_wrapper as seal
 from pyheal import ciphertext_op as cop
 from pyheal import wrapper
+
 
 
 class ABSDecoder(ABC):
@@ -44,7 +47,11 @@ class BaseDecoder(ABSDecoder):
         :param dt: data to be decoded or list of data points to be decoded
         :return: decoded data
         """
-        if isinstance(dt, list):
+        if isinstance(dt, dict):
+            return {k:self.decode(v) for k, v in dt.items()}
+        elif isinstance(dt, np.ndarray):
+            return np.array(self.decode(dt.tolist()))
+        elif isinstance(dt, list):
             return [self.decode(v_) for v_ in dt]
         else:
             return self._decode(dt)
@@ -88,6 +95,8 @@ class BaseEncoder(ABSEncoder):
         # Check if data is plaintext
         if isinstance(dt, dict):
             return {k:self.encode(v, **kwargs) for k, v in dt.items()}
+        elif isinstance(dt, np.ndarray):
+            return np.array(self.encode(dt.tolist(), **kwargs))
         elif isinstance(dt, list):
             return [self.encode(v_, **kwargs) for v_ in dt]
         else:
@@ -271,3 +280,4 @@ class NoiseBudgetDecoder(BaseDecoder):
         :return: noise budget
         """
         return self._decoder.invariant_noise_budget(dt)  # if list then it needs to min later
+
