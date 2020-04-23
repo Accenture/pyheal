@@ -2,6 +2,7 @@ import unittest
 import random
 import math
 import time
+import numpy as np
 
 random.seed(37733)
 
@@ -162,6 +163,7 @@ class HEOperationTests(object):
         finally:
             steps_per_min_encrypted_one = i/(time.time() - stime_)
             print("{} Encrypted Ones: {:.2f} steps/sec".format(operation, steps_per_min_encrypted_one))
+
 
     def test_zero_and_one_operations(self):
         for zero_percent in [0.0, 0.125, 0.25, 0.50]:
@@ -355,6 +357,66 @@ class HEOperationTests(object):
             print('({}) / {} = ({}) <- E'.format(v1, v2, eres))
             self.assertTrue(math.isclose(res, eres, rel_tol=REL_TOL, abs_tol=ABS_TOL),
                             msg="Values are significantly different to each other: {v1} and {v2}".format(v1=res, v2=eres))
+
+    def test_numpy_arrays(self):
+
+        ia = np.random.randint(1,10, 10)
+        il = ia.tolist()
+        ia_e = self.encryptor_encoder.encode(ia)
+        il_e = self.encryptor_encoder.encode(il)
+
+        res_a = ia.sum()
+        res_l = sum(il)
+
+        self.assertEqual(res_a, res_l, "Sums of List and Numpy Array should be equal" )
+
+        res_a_e1 = sum(ia_e)
+        res_a_e2 = ia_e.sum()
+        res_l_e = sum(il_e)
+
+        res_a_e1 = self.decryptor_decoder.decode(res_a_e1)
+        res_a_e2 = self.decryptor_decoder.decode(res_a_e2)
+        res_l_e = self.decryptor_decoder.decode(res_l_e)
+
+
+        self.assertTrue(math.isclose(res_l_e, res_l, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Sums of Encrypted List and List should be equal")
+        self.assertTrue(math.isclose(res_a_e1, res_a, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Sums of Encrypted Numpy Array (sum(a)) and Numpy Array should be equal")
+        self.assertTrue(math.isclose(res_a_e2, res_a, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Sums of Encrypted Numpy Array (a.sum()) and Numpy Array should be equal")
+        self.assertTrue(math.isclose(res_a_e1, res_a_e2, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Sums of Encrypted Numpy Array (sum(a)) and Encrypted Numpy Array (a.sum()) should be equal")
+
+
+        ia = np.random.random(20)
+        il = ia.tolist()
+        ia_e = self.encryptor_encoder.encode(ia)
+        il_e = self.encryptor_encoder.encode(il)
+
+        res_a = ia.mean()
+        res_l = sum(il)/len(il)
+
+        self.assertTrue(math.isclose(res_a, res_l, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Means of List and Numpy Array should be equal" )
+
+        res_a_e1 = sum(ia_e)/len(ia_e)
+        res_a_e2 = ia_e.mean()
+        res_l_e = sum(il_e)/len(il_e)
+
+        res_a_e1 = self.decryptor_decoder.decode(res_a_e1)
+        res_a_e2 = self.decryptor_decoder.decode(res_a_e2)
+        res_l_e = self.decryptor_decoder.decode(res_l_e)
+
+
+        self.assertTrue(math.isclose(res_l_e, res_l, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Means of Encrypted List and List should be equal")
+        self.assertTrue(math.isclose(res_a_e1, res_a, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Means of Encrypted Numpy Array (sum(a)/len(a)) and Numpy Array should be equal")
+        self.assertTrue(math.isclose(res_a_e2, res_a, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Means of Encrypted Numpy Array (a.mean()) and Numpy Array should be equal")
+        self.assertTrue(math.isclose(res_a_e1, res_a_e2, rel_tol=REL_TOL, abs_tol=ABS_TOL),
+                        "Means of Encrypted Numpy Array (sum(a)/len(a)) and Encrypted Numpy Array (a.mean()) should be equal")
 
 
 class TestHelpers_BFV(unittest.TestCase, HEOperationTests):
